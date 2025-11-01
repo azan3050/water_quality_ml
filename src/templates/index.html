@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Quality Predictor</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <main class="container">
+        <h1>Water Quality Predictor 🌊</h1>
+        <p>Enter the water measurements to predict the WQI Category.</p>
+
+        <form id="wqi-form">
+            
+            <fieldset>
+                <legend>Basic Info</legend>
+                <div class="form-group">
+                    <label for="state-name">State Name</label>
+                    <input type="text" id="state-name" name="State Name" value="PUNJAB" required>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Core Measurements</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Temp Min (°C)</label>
+                        <input type="number" step="any" name="Temperature (°C)(Min)" value="20.0" placeholder="e.g., 20.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Temp Max (°C)</label>
+                        <input type="number" step="any" name="Temperature (°C)(Max)" value="25.0" placeholder="e.g., 25.0">
+                    </div>
+                    <div class="form-group">
+                        <label>D.O. Min (mg/L)</label>
+                        <input type="number" step="any" name="Dissolved Oxygen(mg/L)(min)" value="7.1" placeholder="e.g., 7.1">
+                    </div>
+                    <div class="form-group">
+                        <label>D.O. Max (mg/L)</label>
+                        <input type="number" step="any" name="Dissolved Oxygen(mg/L)(max)" value="8.2" placeholder="e.g., 8.2">
+                    </div>
+                    <div class="form-group">
+                        <label>pH Min</label>
+                        <input type="number" step="any" name="pH(min)" value="7.0" placeholder="e.g., 7.0">
+                    </div>
+                    <div class="form-group">
+                        <label>pH Max</label>
+                        <input type="number" step="any" name="pH(max)" value="7.4" placeholder="e.g., 7.4">
+                    </div>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Chemical & Physical</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Conductivity Min</label>
+                        <input type="number" step="any" name="Conductivity (µmho/cm)(min)" value="120" placeholder="e.g., 120">
+                    </div>
+                    <div class="form-group">
+                        <label>Conductivity Max</label>
+                        <input type="number" step="any" name="Conductivity (µmho/cm)(max)" value="150" placeholder="e.g., 150">
+                    </div>
+                    <div class="form-group">
+                        <label>BOD Min (mg/L)</label>
+                        <input type="number" step="any" name="BOD
+(mg/L)(min)" value="1.5" placeholder="e.g., 1.5">
+                    </div>
+                    <div class="form-group">
+                        <label>BOD Max (mg/L)</label>
+                        <input type="number" step="any" name="BOD
+(mg/L)(max)" value="2.5" placeholder="e.g., 2.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Nitrate-N Min</label>
+                        <input type="number" step="any" name="Nitrate N (mg/L)(Min)" value="0.8" placeholder="e.g., 0.8">
+                    </div>
+                    <div class="form-group">
+                        <label>Nitrate-N Max</label>
+                        <input type="number" step="any" name="Nitrate N (mg/L)(Max)" value="1.2" placeholder="e.g., 1.2">
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Biological</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Fecal Coliform Min</label>
+                        <input type="number" step="any" name="Fecal Coliform (MPN/100ml)(Min)" value="80" placeholder="e.g., 80">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecal Coliform Max</label>
+                        <input type="number" step="any" name="Fecal Coliform (MPN/100ml)(Max)" value="120" placeholder="e.g., 120">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Coliform Min</label>
+                        <input type="number" step="any" name="Total Coliform (MPN/100ml)(Min)" value="200" placeholder="e.g., 200">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Coliform Max</label>
+                        <input type="number" step="any" name="Total Coliform (MPN/100ml)(Max)" value="300" placeholder="e.g., 300">
+                    </div>
+                </div>
+            </fieldset>
+
+            <button type="submit" id="predict-btn">Predict</button>
+        
+        </form>
+        
+        <div id="result-container" class="hidden">
+            <div id="loader" class="hidden"></div>
+            <h3>Prediction Result:</h3>
+            <p id="result-text"></p>
+        </div>
+
+    </main>
+
+</body>
+</html>

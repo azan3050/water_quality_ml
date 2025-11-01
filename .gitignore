@@ -1,0 +1,105 @@
+# =========================================
+# PYTHON BASICS
+# =========================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.so
+*.egg
+*.egg-info/
+*.manifest
+*.spec
+
+# Virtual environments
+venv/
+.env/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# =========================================
+# JUPYTER NOTEBOOKS
+# =========================================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# =========================================
+# DATA & MODELS
+# =========================================
+# Raw and processed data
+data/raw/
+data/processed/
+*.csv
+*.tsv
+*.xlsx
+*.parquet
+
+# Trained model and pipeline artifacts
+models/
+artifacts/
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.onnx
+
+# =========================================
+# LOGS & OUTPUTS
+# =========================================
+logs/
+*.log
+*.out
+*.err
+
+# =========================================
+# DEPLOYMENT / ENVIRONMENT CONFIGS
+# =========================================
+# Keep key deployment configs, ignore secrets
+*.env
+!requirements.txt
+!runtime.txt
+!Procfile
+!Dockerfile
+!setup.sh
+!gunicorn_config.py
+
+# For Hugging Face / Render / Streamlit deployments
+# Keep main app and web templates
+!src/main.py
+!src/predict.py
+!src/preprocess.py
+!src/train.py
+!src/templates/
+!src/static/
+!src/*.js
+!src/*.css
+!src/*.html
+
+# =========================================
+# IDE & OS FILES
+# =========================================
+.vscode/
+.idea/
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =========================================
+# TEMPORARY / BACKUP FILES
+# =========================================
+*.tmp
+*.bak
+*.swp
+*.swo
+*.orig
+*.md~
+__temp__/
+cache/
+__cache__/
