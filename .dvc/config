@@ -1,1 +1,4 @@
-
+[core]
+    remote = studio
+['remote "studio"']
+    url = https://studio.datachain.ai/user/azan3050
