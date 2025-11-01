@@ -103,3 +103,9 @@ Desktop.ini
 __temp__/
 cache/
 __cache__/
+
+# Ignore DVC-tracked data and artifacts
+artifacts/
+
+# Ignore DVC cache
+.dvc/cache

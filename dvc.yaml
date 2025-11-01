@@ -1,0 +1,31 @@
+# dvc.yaml
+
+stages:
+  preprocess:
+    cmd: >
+      python src/preprocess.py
+      --input_path data/raw/raw_data.csv
+      --output_dir data/processed
+      --artifacts_dir artifacts
+    deps:
+      - src/preprocess.py
+      - data/raw/raw_data.csv
+      - src/processing.py  # Assuming processing.py is imported by preprocess.py
+    outs:
+      - data/processed/train_processed.csv
+      - data/processed/test_processed.csv
+      - artifacts/preprocessor_artifact.joblib
+
+  train:
+    cmd: >
+      python src/train.py
+      --train_data_path data/processed/train_processed.csv
+      --test_data_path data/processed/test_processed.csv
+      --artifacts_dir artifacts
+    deps:
+      - src/train.py
+      - data/processed/train_processed.csv
+      - data/processed/test_processed.csv
+    outs:
+      - artifacts/label_encoder.joblib
+      - artifacts/model_pipeline_xgb.joblib
