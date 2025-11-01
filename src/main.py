@@ -55,10 +55,12 @@ class WaterQualityInput(BaseModel):
 # (Same as before)
 try:
     preprocessor_artifact_path = os.path.join('artifacts', 'preprocessor_artifact.joblib')
-    model_pipeline_path = os.path.join('artifacts', 'model_pipeline.joblib')
+    model_pipeline_path = os.path.join('artifacts', 'model_pipeline_xgb.joblib')
+    label_encoder_path = os.path.join('artifacts', 'label_encoder.joblib')
     
     PREPROCESSOR_ARTIFACT = joblib.load(preprocessor_artifact_path)
     MODEL_PIPELINE = joblib.load(model_pipeline_path)
+    LABEL_ENCODER = joblib.load(label_encoder_path)
     
     logger.info("✅ Artifacts loaded successfully on startup.")
 
@@ -66,6 +68,8 @@ except FileNotFoundError:
     logger.error("Artifact files not found. Check 'artifacts' directory.")
     PREPROCESSOR_ARTIFACT = None
     MODEL_PIPELINE = None
+    LABEL_ENCODER = None
+
 except Exception as e:
     logger.error(f"Error loading artifacts: {e}")
     PREPROCESSOR_ARTIFACT = None
@@ -101,22 +105,27 @@ async def predict_wqi(data: WaterQualityInput):
     """
     Takes raw water quality measurements and returns a predicted WQI Category.
     """
-    # (This function is the same as before)
-    if PREPROCESSOR_ARTIFACT is None or MODEL_PIPELINE is None:
+    if PREPROCESSOR_ARTIFACT is None or MODEL_PIPELINE is None or LABEL_ENCODER is None: # <-- Check all
         logger.error("Prediction failed: Artifacts are not loaded.")
         raise HTTPException(status_code=500, detail="Internal Server Error: Model artifacts not loaded.")
-    
     try:
+        # 1. Convert to DataFrame
         input_data = data.model_dump(by_alias=True)
         raw_df = pd.DataFrame([input_data])
         logger.info(f"Received prediction request for state: {data.state_name}")
         
+        # 2. Process data
         processed_df = process_raw_data(raw_df, PREPROCESSOR_ARTIFACT)
-        prediction = MODEL_PIPELINE.predict(processed_df)
-        predicted_category = prediction[0]
+        
+        # 3. Make prediction (will return an integer, e.g., [2])
+        prediction_encoded = MODEL_PIPELINE.predict(processed_df)
+        
+        # 4. NEW: Decode the integer prediction to a string label
+        predicted_category = LABEL_ENCODER.inverse_transform(prediction_encoded)[0]
         
         logger.info(f"Prediction successful: {predicted_category}")
         
+        # 5. Return the result
         return {
             "prediction": predicted_category,
             "input_data": input_data

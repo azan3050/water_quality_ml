@@ -6,7 +6,8 @@ import logging
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import joblib
 
@@ -46,10 +47,19 @@ def main(train_data_path, test_data_path, artifacts_dir):
         
         logger.info("Separated features X and Target y")
         
+        le = LabelEncoder()
+        y_train_encoded = le.fit_transform(y_train)
+        y_test_encoded = le.fit_transform(y_test)
+        
+        logger.info(f"LabelEncoder classes: {list(le.classes_)}")
+        
+        os.makedirs(artifacts_dir, exist_ok=True)
+        label_encoder_path = os.path.join(artifacts_dir, 'label_encoder.joblib')
+        joblib.dump(le, label_encoder_path)
+        logger.info(f"✅ LabelEncoder saved to {label_encoder_path}")
+        
         # Preprocessing Pipeline for model
         categorical_features = ['state_name']
-        
-        numerical_features = [col for col in X_train.columns if col not in categorical_features]
         
         # Preprocessor for State Name
         preprocessor = ColumnTransformer(
@@ -60,8 +70,16 @@ def main(train_data_path, test_data_path, artifacts_dir):
         )
         logger.info("Created Column Transformer for state_name")
         
-        # Random Forest Model
-        model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
+        # XGBoost Classification Model
+        model = XGBClassifier(
+            n_estimators=100,
+            learning_rate=0.1,
+            max_depth=5,
+            random_state=42,
+            n_jobs=-1,
+            use_label_encoder=False,
+            eval_metric='mlogloss'
+        )
         
         # Model Pipelne
         model_pipeline = Pipeline(
@@ -75,38 +93,44 @@ def main(train_data_path, test_data_path, artifacts_dir):
         
         # Training model
         logger.info("Starting model training...")
-        model_pipeline.fit(X_train, y_train)
+        model_pipeline.fit(X_train, y_train_encoded)
         logger.info("✅ Model training complete.")
 
         # Save the Model Pipeline 
         os.makedirs(artifacts_dir, exist_ok=True)
-        model_path = os.path.join(artifacts_dir, 'model_pipeline.joblib')
+        model_path = os.path.join(artifacts_dir, 'model_pipeline_xgb.joblib')
         joblib.dump(model_pipeline, model_path)
         logger.info(f"✅ Model pipeline saved to {model_path}")
 
-        # Evaluate the Model 
+        # Model Evaluation
         logger.info("Starting model evaluation on test set...")
-        y_pred = model_pipeline.predict(X_test)
+        # predict() will return encoded integers (0, 1, 2...)
+        y_pred_encoded = model_pipeline.predict(X_test)
         
-        accuracy = accuracy_score(y_test, y_pred)
-        report = classification_report(y_test, y_pred)
+        # Get accuracy using the encoded labels
+        accuracy = accuracy_score(y_test_encoded, y_pred_encoded)
+        
+        # For the classification report, we want to see the *names*
+        # So we decode the predictions
+        y_pred_labels = le.inverse_transform(y_pred_encoded)
+        
+        # Compare the original y_test (strings) with the decoded y_pred (strings)
+        report = classification_report(y_test, y_pred_labels, zero_division=0)
         
         logger.info(f"Test Set Accuracy: {accuracy:.4f}")
         logger.info(f"Classification Report:\n{report}")
         
-        print(f"\n--- Model Evaluation ---")
+        print(f"\n--- XGBoost Model Evaluation ---")
         print(f"Accuracy on Test Set: {accuracy * 100:.2f}%")
         print("\nClassification Report:")
         print(report)
-        print("\nConfusion Matrix:")
-        print(confusion_matrix(y_test, y_pred))
-        print(f"------------------------")
+        print(f"--------------------------------")
         
-        logger.info("--- Training script finished successfully ---")
+        logger.info("--- XGBoost training script finished successfully ---")
 
     except FileNotFoundError:
-        logger.error(f"Error: Data files not found at {train_data_path} or {test_data_path}")
-        print(f"Error: Data files not found. Make sure these files exist:\n{train_data_path}\n{test_data_path}")
+        logger.error(f"Error: Data files not found.")
+        print(f"Error: Data files not found.")
     except Exception as e:
         logger.error(f"An unexpected error occurred: {e}")
         print(f"An unexpected error occurred: {e}")
