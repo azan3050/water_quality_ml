@@ -28,26 +28,6 @@ venv.bak/
 *.ipynb_checkpoints
 
 # =========================================
-# DATA & MODELS
-# =========================================
-# Raw and processed data
-data/raw/
-data/processed/
-*.csv
-*.tsv
-*.xlsx
-*.parquet
-
-# Trained model and pipeline artifacts
-models/
-artifacts/
-*.pkl
-*.joblib
-*.h5
-*.pt
-*.onnx
-
-# =========================================
 # LOGS & OUTPUTS
 # =========================================
 logs/
@@ -103,9 +83,6 @@ Desktop.ini
 __temp__/
 cache/
 __cache__/
-
-# Ignore DVC-tracked data and artifacts
-artifacts/
 
 # Ignore DVC cache
 .dvc/cache
