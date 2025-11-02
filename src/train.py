@@ -34,12 +34,34 @@ def main(train_data_path, test_data_path, artifacts_dir):
 
         # Define features & target
         TARGET = "WQI_Category"
-        FEATURES_TO_DROP = ["WQI", TARGET]  # Avoid data leakage
 
-        X_train = train_df.drop(columns=FEATURES_TO_DROP, errors="ignore")
+        FINAL_FEATURES = [
+            'state_name',  # The categorical feature
+            
+            # Average features
+            'temperature_avg',
+            'dissolved_oxygen_avg',
+            'ph_avg',
+            'log_fecal_coliform_avg',
+            'log_nitrate_avg',
+            'log_conductivity_avg',
+            'log_bod_avg',
+            
+            # Range features
+            'temperature_range',
+            'dissolved_oxygen_range',
+            'ph_range',
+            'log_fecal_coliform_range',
+            'log_nitrate_range',
+            'log_conductivity_range',
+            'log_bod_range'
+        ]
+
+        # Select *only* these features
+        X_train = train_df[FINAL_FEATURES]
         y_train = train_df[TARGET]
-
-        X_test = test_df.drop(columns=FEATURES_TO_DROP, errors="ignore")
+        
+        X_test = test_df[FINAL_FEATURES]
         y_test = test_df[TARGET]
 
         logger.info("✅ Split into features (X) and target (y)")
@@ -61,7 +83,7 @@ def main(train_data_path, test_data_path, artifacts_dir):
             transformers=[
                 ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_features)
             ],
-            remainder="passthrough",
+            remainder="passthrough", 
         )
 
         logger.info("✅ ColumnTransformer created for state_name")

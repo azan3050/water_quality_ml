@@ -1,14 +1,10 @@
-# processing.py
-
 import pandas as pd
 import numpy as np
 
-# --- Define Constants ---
-# These are the lists of columns you discovered in your EDA
-# We use the *renamed* column names
 
 SKEWED_COLS = [
-    'conductivity_mhocmmin', 'conductivity_mhocmmax', 'bod_mglmin', 'bod_mglmax',
+    'conductivity_µmhocmmin', 'conductivity_µmhocmmax ',
+    'bod_mglmin', 'bod_mglmax',
     'nitrate_n_mglmin', 'nitrate_n_mglmax', 'fecal_coliform_mpn100mlmin', 
     'fecal_coliform_mpn100mlmax', 'total_coliform_mpn100mlmin', 'total_coliform_mpn100mlmax'
 ]
@@ -20,7 +16,7 @@ FEATURE_PAIRS = {
     'log_fecal_coliform': ('log_fecal_coliform_mpn100mlmin', 'log_fecal_coliform_mpn100mlmax'),
     'log_total_coliform': ('log_total_coliform_mpn100mlmin', 'log_total_coliform_mpn100mlmax'),
     'log_nitrate': ('log_nitrate_n_mglmin', 'log_nitrate_n_mglmax'),
-    'log_conductivity': ('log_conductivity_mhocmmin', 'log_conductivity_mhocmmax'),
+    'log_conductivity': ('log_conductivity_µmhocmmin', 'log_conductivity_µmhocmmin'),
     'log_bod': ('log_bod_mglmin', 'log_bod_mglmax')
 }
 
@@ -93,8 +89,40 @@ def drop_correlated_features(df: pd.DataFrame) -> pd.DataFrame:
     proc_df = df.drop(columns=existing_cols_to_drop)
     return proc_df
 
-# --- Main Orchestrator Function ---
+def calculate_wqi(row):
+    """
+    Calculates the Water Quality Index (WQI) for a row.
+    Uses .get() for safety in case a column is missing.
+    """
+    try:
+        wqi = 100 - (
+            4 * row.get('log_bod_avg', 0) +
+            3 * row.get('log_fecal_coliform_avg', 0) +
+            2 * row.get('log_nitrate_avg', 0) +
+            1.5 * row.get('temperature_avg', 0) -
+            2 * row.get('dissolved_oxygen_avg', 0) +
+            10 * abs(7.5 - row.get('ph_avg', 7.5)) 
+        )
+        return np.clip(wqi, 0, 100)
+    except Exception:
+        return np.nan
 
+def classify_wqi(value):
+    """Classifies a WQI value into a category."""
+    if pd.isna(value):
+        return 'Missing'
+    if value > 80:
+        return 'Excellent'
+    elif value > 60:
+        return 'Good'
+    elif value > 40:
+        return 'Moderate'
+    elif value > 20:
+        return 'Poor'
+    else:
+        return 'Very Poor or Unsafe'
+
+# --- Main Orchestrator Function ---
 def process_raw_data(raw_df: pd.DataFrame, artifact: dict) -> pd.DataFrame:
     """
     Runs the full preprocessing pipeline on raw data.

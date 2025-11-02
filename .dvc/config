@@ -1,4 +1,2 @@
-[core]
-    remote = studio
-['remote "studio"']
-    url = https://studio.datachain.ai/user/azan3050
+['remote "origin"']
+    url = https://dagshub.com/azan3050/water_quality_ml.dvc

@@ -9,4 +9,3 @@ fastapi
 uvicorn 
 jinja2
 dvc
-dvc-gdrive
